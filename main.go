@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
   "strings"
+  "syscall"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+  "github.com/twpayne/go-shell"
 )
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -54,6 +56,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	return docStyle.Render(m.list.View())
+}
+
+func runCommand(cmd string) {
+  shell, ok := shell.CurrentUserShell()
+  if !ok { shell = "sh" }
+
+  if err := syscall.Exec("/usr/bin/sh", []string{shell, "-c", cmd}, os.Environ()); err != nil {
+    fmt.Println(err)
+    os.Exit(1)
+	}
+
 }
 
 func main() {
